@@ -3,6 +3,7 @@ import tempfile
 import requests
 from pdfminer.high_level import extract_text
 import re
+from typing import List
 
 """
 pdf_extractor.py
@@ -46,7 +47,7 @@ def download_pdf(url: str) -> str:
     print(f"[PDF] Saved to {tmp_path}")
     return tmp_path
 
-def extract_text(pdf_path: str) -> str:
+def extract_text_local(pdf_path: str) -> str:
     """Return all readable text from the PDF."""
     """
     Extract raw text from a PDF file using pdfminer.
@@ -70,7 +71,83 @@ def extract_text(pdf_path: str) -> str:
 
 def extract_github_links(text: str) -> list[str]:
     """Return all GitHub links found inside the PDF text."""
+    """
+    Extract GitHub repository URLs from a given text.
+    Returns a clean list of normalized URLs (no duplicates).
+    """
+
+    print("[GITHUB] Scanning text for GitHub links...")
+
+    # 1. Pattern that matches:
+    #    - https://github.com/user/repo
+    #    - http://github.com/user/repo
+    #    - github.com/user/repo
+
+    
+    pattern = r"(https?://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+|github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+)"
+    #crazy regular expression given by chatgpt lol
+    matches = re.findall(pattern, text)
+
+    if not matches:
+        print("[GITHUB] No GitHub links detected.")
+        return []
+
+    cleaned = []
+    for m in matches:
+        # add https:// if missing
+        if m.startswith("github.com"):
+            m = "https://" + m
+
+        # remove trailing punctuation
+        m = m.rstrip(".,);")
+
+        cleaned.append(m)
+
+    # Remove duplicates while preserving order
+    seen = set()
+    unique = []
+    for url in cleaned:
+        if url not in seen:
+            unique.append(url)
+            seen.add(url)
+
+    print(f"[GITHUB] Found {len(unique)} repositories.")
+    return unique
 
 #everything basically
-def get_github_links_from_pdf(url: str) -> list[str]:
+def get_github_links_from_pdf(paper_url: str) -> list[str]:
     """High-level function: download, extract text, extract links."""
+    """
+    Full pipeline:
+    1. Download the PDF from the given URL
+    2. Extract text from the PDF
+    3. Extract GitHub repository URLs from the text
+    """
+
+    print("[PIPELINE] Starting GitHub link extraction from PDF...")
+    print(f"[PIPELINE] Paper URL: {paper_url}")
+
+    # Step 1 — Download the PDF
+    pdf_path = download_pdf(paper_url)
+    if pdf_path is None:
+        print("[ERROR] Could not download PDF.")
+        return []
+
+    # Step 2 — Extract text
+    text = extract_text_local(pdf_path)
+    if not text.strip():
+        print("[ERROR] PDF text extraction returned empty content.")
+        return []
+
+    # Step 3 — Extract GitHub links
+    github_links = extract_github_links(text)
+
+    if github_links:
+        print("[PIPELINE] Extraction complete. Repositories found:")
+        for repo in github_links:
+            print("   -", repo)
+    else:
+        print("[PIPELINE] No GitHub repositories found in this PDF.")
+
+    return github_links
+
