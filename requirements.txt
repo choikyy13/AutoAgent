@@ -1,5 +1,9 @@
-pypdf
-requests
-beautifulsoup4
-python-dotenv
-openai
+# requirements.txt
+# ----------------
+# Minimal dependencies for Track-2 pipeline
+
+pypdf                 # Extract text from PDFs
+requests              # Download PDF files
+beautifulsoup4        # Optional: HTML parsing
+python-dotenv         # Load API keys
+openai                # LLM API (can swap with Gemini or Constructor)
