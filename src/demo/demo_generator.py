@@ -155,7 +155,7 @@ def _llm_generate_demo(scan_summary: str, repo_path: str) -> str:
     Return only the python code for the demo script, no explanations.
     """
 
-    return _call_groq(prompt, repo_path)
+    return _call_groq(prompt)
 
 def generate_demo(scan_output: Dict, repo_path: str) -> str:
     """
@@ -185,7 +185,7 @@ def generate_demo(scan_output: Dict, repo_path: str) -> str:
 
     # 2. Otherwise: generate new demo
     print("No valid demo found — generating a new one with LLM…")
-    generated_code = _llm_generate_demo(scan_summary)
+    generated_code = _llm_generate_demo(scan_summary, repo_path)
 
     try:
         compile(generated_code, "<string>", "exec")
