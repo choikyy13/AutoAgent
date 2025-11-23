@@ -9,3 +9,4 @@ python-dotenv         # Load API keys
 ##openai                # LLM API (can swap with Gemini or Constructor)
 GitPython           # Clone GitHub repositories
 jsonschema            # Validate JSON structures
+pdfminer.six         # Alternative PDF text extraction
