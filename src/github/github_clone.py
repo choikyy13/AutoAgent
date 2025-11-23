@@ -18,15 +18,10 @@ from git import Repo
 
 def clone_repository(repo_url: str, base_folder: str = "ImportedProjects") -> str:
     """
-    Clone a GitHub repository to a local folder.
-        
-    Returns:
-        Local path to the cloned repository
-        
-    Raises:
-        Exception: If cloning fails
+    Returns: Local path to the cloned repository
+    Exception: If cloning fails
     """
-    print(f"[CLONE] Starting clone of: {repo_url}")
+    print(f"Starting clone of: {repo_url}")
     
     repo_name = _extract_repo_name(repo_url)
     
@@ -36,7 +31,7 @@ def clone_repository(repo_url: str, base_folder: str = "ImportedProjects") -> st
     # Generate unique folder name
     target_folder = _generate_unique_folder(base_folder, repo_name)
     
-    print(f"[CLONE] Cloning into: {target_folder}")
+    print(f"Cloning into: {target_folder}")
     
     try:
         # Clone the repository
@@ -54,13 +49,6 @@ def clone_repository(repo_url: str, base_folder: str = "ImportedProjects") -> st
 
 
 def _extract_repo_name(repo_url: str) -> str:
-    """
-    Extract repository name from GitHub URL.
-    
-    Examples:
-        https://github.com/RadonPy/RadonPy -> RadonPy
-        https://github.com/user/my-repo.git -> my-repo
-    """
     # Remove trailing .git if present
     url = repo_url.rstrip('/')
     if url.endswith('.git'):
@@ -76,12 +64,7 @@ def _extract_repo_name(repo_url: str) -> str:
 
 def _generate_unique_folder(base_folder: str, repo_name: str) -> str:
     """
-    Generate a unique folder name to avoid conflicts.
-    
-    Examples:
-        RadonPy -> ImportedProjects/RadonPy
-        RadonPy (if exists) -> ImportedProjects/RadonPy_1
-        RadonPy (if both exist) -> ImportedProjects/RadonPy_2
+    Generates a unique folder name in the base_folder for the given repo_name.
     """
     target = os.path.join(base_folder, repo_name)
     
