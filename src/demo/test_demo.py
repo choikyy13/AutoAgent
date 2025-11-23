@@ -18,8 +18,9 @@ scan_output = {
     'configs': [],
     'models': [],
     'demos': [
-        'demo/__pycache__/demo_generator.cpython-313.pyc',
-        'demo/demo_generator.py'
+        'src/demo/demo_generator.py', 
+        'src/demo/test_demo.py',
+        'non_existent_demo.py'
     ],
     'entrypoints': [
         'analysis/code_scanner.py',
@@ -35,6 +36,7 @@ def test_demo_generation():
 
     # path to local repo root
     repo_root = os.path.abspath(".")
+    print(repo_root)
 
     print("\n🧪 TEST: demo generation using static scan_output")
 
