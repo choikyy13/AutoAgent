@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    # Load environment variables from .env file
+    env_file:
+      - .env
+    
+    # Mount your code (for live editing during development)
+    volumes:
+      - .:/app
+      - ./ImportedProjects:/app/ImportedProjects
+    
+    # Keep container running
+    stdin_open: true
+    tty: true
+    
+    # Override default command to bash (so you can run commands manually)
+    command: /bin/bash

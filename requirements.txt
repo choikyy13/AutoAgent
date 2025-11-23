@@ -6,4 +6,4 @@ pypdf                 # Extract text from PDFs
 requests              # Download PDF files
 beautifulsoup4        # Optional: HTML parsing
 python-dotenv         # Load API keys
-openai                # LLM API (can swap with Gemini or Constructor)
+##openai                # LLM API (can swap with Gemini or Constructor)
