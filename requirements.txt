@@ -7,3 +7,4 @@ requests              # Download PDF files
 beautifulsoup4        # Optional: HTML parsing
 python-dotenv         # Load API keys
 ##openai                # LLM API (can swap with Gemini or Constructor)
+GitPython           # Clone GitHub repositories
