@@ -7,15 +7,21 @@ Responsibilities:
 - Use LLM to match paper content to repo descriptions
 - Filter out irrelevant links (e.g., PDF links, subfolders)
 
-This gives us stable and reliable repo selection.
+We will use Constructor API to call the LLM.
 """
 
 import os
 import re
+import sys
 from typing import List
 import requests
-
 from dotenv import load_dotenv
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.insert(0, project_root)
+from ConstructorAdapter.constructor_adapter.constructor_stateless_adapter import StatelessConstructorAdapter
+
+
 load_dotenv()  # This reads .env files in the project root
 
 def select_best_repository(github_links: List[str], paper_text: str) -> str:
@@ -54,7 +60,7 @@ Format: "Repository X: [reason]"
     
     # Call LLM
     try:
-        answer = _call_groq(prompt)
+        answer = _call_constructor(prompt)
         print(f"{answer}")
         
         # Parse response
@@ -74,9 +80,21 @@ Format: "Repository X: [reason]"
     return github_links[0]
 
 
-def _call_groq(prompt: str) -> str:
-    # call Groq API through http requests
+def _call_constructor(prompt: str) -> str:
+    try:   
+        adapter = StatelessConstructorAdapter(
+            llm_alias="gpt-4o-mini"  # Default model, can change to "gpt-4o" for better results
+        )
+        
+        # Query the model
+        response = adapter.query(prompt)
+        
+        return response
+        
+    except Exception as e:
+        raise Exception(f"Constructor API error: {e}")
     
+    """
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise Exception("GROQ_API_KEY not set. Please set it in your environment variables.")
@@ -100,3 +118,4 @@ def _call_groq(prompt: str) -> str:
         raise Exception(f"Groq API error: {response.status_code}")
     
     return response.json()["choices"][0]["message"]["content"]
+    """
