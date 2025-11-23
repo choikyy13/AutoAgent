@@ -23,54 +23,51 @@ import json
 
 load_dotenv()
 
-def _call_groq(prompt: str) -> str:
-    # ... (API key check remains the same) ...
-    api_key = os.getenv("GROQ_API_KEY")
-    response = requests.post(
-        "https://api.groq.com/openai/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "model": "llama-3.1-8b-instant",
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0,
-            "max_tokens": 200
-        },
-        timeout=30
-    )
+def _call_groq(prompt: str, max_tokens: int = 1000) -> str:
+    # call Groq API through http requests
     
-    if response.status_code != 200:
-        # This part handles non-200 errors correctly
-        raise Exception(f"Groq API error: {response.status_code}. Response: {response.text}")
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise Exception("GROQ_API_KEY not set. Please set it in your environment variables.")
 
-    # --- ADD THIS BLOCK FOR JSON EXTRACTION DEBUGGING ---
     try:
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "llama-3.1-8b-instant",  # ✅ CORRECT MODEL!
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.3,  # Slight creativity helps
+                "max_tokens": max_tokens
+            },
+            timeout=30
+        )
+        
+        if response.status_code != 200:
+            print(f"❌ Groq API error {response.status_code}: {response.text}")
+            return ""
+        
         data = response.json()
         
-        # Check if the required path exists
+        # Validate response structure
         if 'choices' in data and data['choices'] and 'message' in data['choices'][0]:
-            return data["choices"][0]["message"].get("content", "").strip()
+            content = data["choices"][0]["message"].get("content", "").strip()
+            
+            if not content:
+                print("⚠️ LLM returned empty content")
+                print(f"Full response: {json.dumps(data, indent=2)}")
+            
+            return content
         else:
-            # Handle cases where status is 200 but content is missing
-            print(f"⚠️ WARNING: Groq response 200, but JSON content is missing required keys.")
-            print(f"Full Response JSON: {json.dumps(data, indent=2)}")
-            return "" # Return empty string to signify failure
-
-    except requests.exceptions.JSONDecodeError as e:
-        # Handle malformed JSON response
-        print(f"❌ ERROR: Failed to decode Groq response JSON. Error: {e}")
-        print(f"Raw Response Text: {response.text}")
-        return "" # Return empty string
-
+            print(f"⚠️ Unexpected response structure: {json.dumps(data, indent=2)}")
+            return ""
+            
     except Exception as e:
-        # Catch any other extraction errors (like KeyError)
-        print(f"❌ ERROR: Unexpected error during response parsing: {e}")
-        print(f"Raw Response Text: {response.text}")
+        print(f"❌ Error calling Groq: {e}")
         return ""
-    
-
 
 def _read_file(path: str) -> str:
     """Read a file safely."""
@@ -151,6 +148,8 @@ def _llm_generate_demo(scan_summary: str, repo_path: str) -> str:
     - returns ONLY pure code
 
     Return only the python code for the demo script, no explanations.
+    REPEAT: ONLY THE CODE, NO EXTRA TEXT. 
+    Don't add any intro or explanation. JUST THE RAW CODE.
     """
 
     return _call_groq(prompt)
