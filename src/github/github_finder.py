@@ -88,7 +88,7 @@ def _call_groq(prompt: str) -> str:
             "Content-Type": "application/json"
         },
         json={
-            "model": "openai/gpt-oss-120b",
+            "model": "llama-3.1-8b-instant",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0,
             "max_tokens": 200
