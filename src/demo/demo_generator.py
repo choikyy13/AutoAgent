@@ -17,7 +17,9 @@ The rest of the repo never talks to the model.
 
 import os
 from typing import Dict, List
-
+import requests
+from dotenv import load_dotenv
+load_dotenv()
 def _call_groq(prompt: str) -> str:
     # call Groq API through http requests
     
