@@ -21,7 +21,7 @@ load_dotenv()  # This reads .env files in the project root
 def select_best_repository(github_links: List[str], paper_text: str) -> str:
     # only one repo in the list
     if len(github_links) == 1:
-        print(f"[FINDER] Only one repo: {github_links[0]}")
+        print(f"Only one repo: {github_links[0]}")
         return github_links[0]
     
     # no repo in the list
@@ -55,7 +55,7 @@ Format: "Repository X: [reason]"
     # Call LLM
     try:
         answer = _call_groq(prompt)
-        print(f"[LLM] {answer}")
+        print(f"{answer}")
         
         # Parse response
         match = re.search(r'Repository\s+(\d+)', answer, re.IGNORECASE)
@@ -63,14 +63,14 @@ Format: "Repository X: [reason]"
             idx = int(match.group(1)) - 1
             if 0 <= idx < len(github_links):
                 selected = github_links[idx]
-                print(f"[FINDER] Selected: {selected}")
+                print(f"Selected: {selected}")
                 return selected
     
     except Exception as e:
-        print(f"[ERROR] LLM call failed: {e}")
+        print(f"LLM call failed: {e}")
     
     # Fallback: return first repo
-    print(f"[FINDER] Falling back to first repo: {github_links[0]}")
+    print(f"Falling back to first repo: {github_links[0]}")
     return github_links[0]
 
 
