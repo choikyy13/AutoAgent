@@ -3,10 +3,10 @@ import os
 from typing import List, Dict
 import json
 
-def _call_openai(prompt: str, max_tokens: int = 1000) -> str:
-    # call openai API through http requests
+def _call_groq(prompt: str, max_tokens: int = 5) -> str:
+    # call groq API through http requests
     
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise Exception("OPENAI_API_KEY not set. Please set it in your environment variables.")
 
@@ -27,7 +27,7 @@ def _call_openai(prompt: str, max_tokens: int = 1000) -> str:
         )
         
         if response.status_code != 200:
-            print(f"❌ openai API error {response.status_code}: {response.text}")
+            print(f"❌ groq API error {response.status_code}: {response.text}")
             return ""
         
         data = response.json()
@@ -46,7 +46,7 @@ def _call_openai(prompt: str, max_tokens: int = 1000) -> str:
             return ""
             
     except Exception as e:
-        print(f"❌ Error calling openai: {e}")
+        print(f"❌ Error calling groq: {e}")
         return ""
 
 # ------------------------------------------------------------
@@ -94,7 +94,7 @@ def detect_models(files: List[str]) -> List[str]:
                 + "\n".join(files)
                 + "\n\nReturn ONLY a JSON array of filenames."
             )
-            ai_resp = _call_openai(prompt)
+            ai_resp = _call_groq(prompt)
             # Attempt to parse JSON
             
             arr = json.loads(ai_resp)
@@ -133,7 +133,7 @@ def detect_configs(files: List[str]) -> List[str]:
             + "\n".join(files)
             + "\n\nReturn JSON array only."
         )
-        resp = _call_openai(prompt)
+        resp = _call_groq(prompt)
         
         arr = json.loads(resp)
         if isinstance(arr, list):
@@ -184,7 +184,7 @@ def detect_entrypoints(repo_path: str, files: List[str]) -> List[str]:
             + "\n".join(files)
             + "\n\nReturn JSON array only."
         )
-        ai_resp = _call_openai(prompt)
+        ai_resp = _call_groq(prompt)
         
         arr = json.loads(ai_resp)
         if isinstance(arr, list):
@@ -218,7 +218,7 @@ def detect_demo_files(files: List[str]) -> List[str]:
             + "\n".join(files)
             + "\n\nReturn JSON array only."
         )
-        ai_resp = _call_openai(prompt)
+        ai_resp = _call_groq(prompt)
         
         arr = json.loads(ai_resp)
         if isinstance(arr, list):

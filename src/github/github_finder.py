@@ -54,8 +54,8 @@ Format: "Repository X: [reason]"
     
     # Call LLM
     try:
-        answer = _call_openai(prompt)
-        print(f"{answer}")
+        answer = _call_groq(prompt)
+        print(f"[FINDER]{answer}")
         
         # Parse response
         match = re.search(r'Repository\s+(\d+)', answer, re.IGNORECASE)
@@ -74,16 +74,16 @@ Format: "Repository X: [reason]"
     return github_links[0]
 
 
-def _call_openai(prompt: str, max_tokens: int = 1000) -> str:
-    # call openai API through http requests
+def _call_groq(prompt: str, max_tokens: int = 5) -> str:
+    # call groq API through http requests
     
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise Exception("OPENAI_API_KEY not set. Please set it in your environment variables.")
+        raise Exception("GROQ_API_KEY not set. Please set it in your environment variables.")
 
     try:
         response = requests.post(
-            "https://api.openai.com/openai/v1/chat/completions",
+            "https://api.groq.com/openai/v1/chat/completions",
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
@@ -98,7 +98,7 @@ def _call_openai(prompt: str, max_tokens: int = 1000) -> str:
         )
         
         if response.status_code != 200:
-            print(f"❌ openai API error {response.status_code}: {response.text}")
+            print(f"❌ groq API error {response.status_code}: {response.text}")
             return ""
         
         data = response.json()
@@ -117,5 +117,5 @@ def _call_openai(prompt: str, max_tokens: int = 1000) -> str:
             return ""
             
     except Exception as e:
-        print(f"❌ Error calling openai: {e}")
+        print(f"❌ Error calling groq: {e}")
         return ""

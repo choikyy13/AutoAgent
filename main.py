@@ -30,8 +30,8 @@ def main():
     
     pdf_url = sys.argv[1]
     
-    print(f"\n🚀 Starting AutoAgent Pipeline")
-    print(f"📄 Paper: {pdf_url}\n")
+    print(f"\nStarting AutoAgent Pipeline")
+    print(f"Paper: {pdf_url}\n")
     
     # Run pipeline
     results = run_pipeline(pdf_url)
