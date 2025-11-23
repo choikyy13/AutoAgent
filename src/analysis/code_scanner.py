@@ -1,5 +1,7 @@
 import os
 from typing import List, Dict
+import json
+
 def _call_groq(prompt: str) -> str:
     # call Groq API through http requests
     
@@ -76,7 +78,7 @@ def detect_models(files: List[str]) -> List[str]:
             )
             ai_resp = _call_groq(prompt)
             # Attempt to parse JSON
-            import json
+            
             arr = json.loads(ai_resp)
             if isinstance(arr, list):
                 detected = arr
@@ -114,7 +116,7 @@ def detect_configs(files: List[str]) -> List[str]:
             + "\n\nReturn JSON array only."
         )
         resp = _call_groq(prompt)
-        import json
+        
         arr = json.loads(resp)
         if isinstance(arr, list):
             return arr
@@ -165,7 +167,7 @@ def detect_entrypoints(repo_path: str, files: List[str]) -> List[str]:
             + "\n\nReturn JSON array only."
         )
         ai_resp = _call_groq(prompt)
-        import json
+        
         arr = json.loads(ai_resp)
         if isinstance(arr, list):
             # merge results
@@ -199,7 +201,7 @@ def detect_demo_files(files: List[str]) -> List[str]:
             + "\n\nReturn JSON array only."
         )
         ai_resp = _call_groq(prompt)
-        import json
+        
         arr = json.loads(ai_resp)
         if isinstance(arr, list):
             detected.extend(arr)
@@ -236,7 +238,6 @@ def summarize_for_llm(repo_path: str, files: List[str]) -> str:
         "entrypoints": entrypoints,
     }
 
-    import json
     return json.dumps(summary, indent=4)
 
 
@@ -257,5 +258,4 @@ def scan_repository(repo_path: str) -> Dict:
     summary_text = summarize_for_llm(repo_path, all_files)
 
     # return parsed dict
-    import json
     return json.loads(summary_text)
