@@ -2,7 +2,9 @@
 # ----------------
 # Minimal dependencies for Track-2 pipeline
 
-requests==2.32.3 
-pdfminer.six==20250327
-python-dotenv==1.1.0
-GitPython==3.1.44
+pypdf                 # Extract text from PDFs
+requests              # Download PDF files
+beautifulsoup4        # Optional: HTML parsing
+python-dotenv         # Load API keys
+##openai                # LLM API (can swap with Gemini or Constructor)
+GitPython           # Clone GitHub repositories
