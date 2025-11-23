@@ -1,5 +1,4 @@
 # test_scan_src.py
-
 from code_scanner import scan_repository
 import os
 

@@ -1,3 +1,4 @@
+import requests
 import os
 from typing import List, Dict
 import json

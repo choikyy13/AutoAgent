@@ -33,21 +33,15 @@ def run_pipeline(pdf_url: str) -> dict:
 
     results = {'input_url' : pdf_url, "Status": "In Progress"}
 
-    # Step 1: Download PDF, extract text, and detect GitHub links
+    # Step 1: Download PDF and extract text
     try:
         pdf_path = download_pdf(pdf_url)
         paper_text = extract_text_local(pdf_path)
-        github_links = get_github_links_from_pdf(paper_text)
         results['pdf_path'] = pdf_path
         results['paper_text'] = paper_text
-        results['github_links'] = github_links
     except Exception as e:
         raise Exception(f"Failed during PDF processing: {e}")    
     
-    # Step 2: Extract text from PDF
-    
-    results['paper_text'] = paper_text
-
     # Step 3: Detect GitHub links
     github_links = get_github_links_from_pdf(paper_text)
     results['github_links'] = github_links
