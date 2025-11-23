@@ -155,10 +155,7 @@ def _llm_generate_demo(scan_summary: str, repo_path: str) -> str:
     Return only the python code for the demo script, no explanations.
     """
 
-    return _call_groq(prompt)
-
-
-
+    return _call_groq(prompt, repo_path)
 
 def generate_demo(scan_output: Dict, repo_path: str) -> str:
     """
@@ -190,4 +187,11 @@ def generate_demo(scan_output: Dict, repo_path: str) -> str:
     print("No valid demo found — generating a new one with LLM…")
     generated_code = _llm_generate_demo(scan_summary)
 
+    try:
+        compile(generated_code, "<string>", "exec")
+        print("Generated demo code is syntactically valid.")
+    
+    except SyntaxError as e:
+        print(f"Generated demo code has syntax errors: {e}")
+    
     return generated_code
