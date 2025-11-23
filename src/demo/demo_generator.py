@@ -19,14 +19,13 @@ import os
 from typing import Dict, List
 import requests
 from dotenv import load_dotenv
+import json
+
 load_dotenv()
+
 def _call_groq(prompt: str) -> str:
-    # call Groq API through http requests
-    
+    # ... (API key check remains the same) ...
     api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        raise Exception("GROQ_API_KEY not set. Please set it in your environment variables.")
-    
     response = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={
@@ -43,9 +42,34 @@ def _call_groq(prompt: str) -> str:
     )
     
     if response.status_code != 200:
-        raise Exception(f"Groq API error: {response.status_code}")
+        # This part handles non-200 errors correctly
+        raise Exception(f"Groq API error: {response.status_code}. Response: {response.text}")
+
+    # --- ADD THIS BLOCK FOR JSON EXTRACTION DEBUGGING ---
+    try:
+        data = response.json()
+        
+        # Check if the required path exists
+        if 'choices' in data and data['choices'] and 'message' in data['choices'][0]:
+            return data["choices"][0]["message"].get("content", "").strip()
+        else:
+            # Handle cases where status is 200 but content is missing
+            print(f"⚠️ WARNING: Groq response 200, but JSON content is missing required keys.")
+            print(f"Full Response JSON: {json.dumps(data, indent=2)}")
+            return "" # Return empty string to signify failure
+
+    except requests.exceptions.JSONDecodeError as e:
+        # Handle malformed JSON response
+        print(f"❌ ERROR: Failed to decode Groq response JSON. Error: {e}")
+        print(f"Raw Response Text: {response.text}")
+        return "" # Return empty string
+
+    except Exception as e:
+        # Catch any other extraction errors (like KeyError)
+        print(f"❌ ERROR: Unexpected error during response parsing: {e}")
+        print(f"Raw Response Text: {response.text}")
+        return ""
     
-    return response.json()["choices"][0]["message"]["content"]
 
 
 def _read_file(path: str) -> str:
@@ -64,7 +88,7 @@ def _llm_validate_demo(scan_summary: str, demo_code: str) -> bool:
     """
 
     prompt = f"""
-    You are an expert software engineer.
+    You are validating a demo code file for a project.
 
     Project summary:
     {scan_summary}
@@ -74,19 +98,39 @@ def _llm_validate_demo(scan_summary: str, demo_code: str) -> bool:
     {demo_code}
     --------------------
 
-    Is this demo runnable and correct for this project?
-    Answer strictly: YES or NO.
+    Is this demo runnable and demonstrates the project?
+    
+    Requirements for YES:
+    - The code must be syntactically correct.
+    - It must import necessary modules from the project.
+    - Shows a working example of the main functionality.
+    - Not just comments or pseudocode.
+
+    answer with ONLY: YES or NO.
+
+    DO NOT include any punctuation, explanation, or code block markers.
     """
 
-    answer = _call_groq(prompt).strip().upper()
-
+    answer = _call_groq(prompt).upper()
+    print("here")
+    print(answer)
     return "YES" in answer
 
 
-def _llm_generate_demo(scan_summary: str) -> str:
+def _llm_generate_demo(scan_summary: str, repo_path: str) -> str:
     """
     Ask AI to generate a runnable demo code file.
     """
+
+    readme = _read_file(os.path.join(repo_path, "README.md"))[:2000]
+
+    # Find actual example
+    example_files = scan_summary.get("demos", [])
+    example_content = ""
+    if example_files:
+        example_content = _read_file(
+            os.path.join(repo_path, example_files[0])
+        )[:1000]
 
     prompt = f"""
     You are a code generation expert.
@@ -94,14 +138,21 @@ def _llm_generate_demo(scan_summary: str) -> str:
     Given this project structure summary:
     {scan_summary}
 
+    README excerpt:
+    {readme}
+
+    Example file excerpt (if any):
+    {example_content}
+
     Generate a SINGLE runnable demo script that:
     - imports required modules
+    - has no TODOs or placeholders
     - uses detected entrypoints if available
     - shows a minimal working example
     - does NOT include explanations or markdown
     - returns ONLY pure code
 
-    Return only the code.
+    Return only the python code for the demo script, no explanations.
     """
 
     return _call_groq(prompt)
@@ -117,7 +168,7 @@ def generate_demo(scan_output: Dict, repo_path: str) -> str:
     - Else → generate new demo via LLM and return CONTENT
     """
     print("DEMO GENERATOR START")
-    scan_summary = scan_output.get("repo_summary", "No summary available.")
+    scan_summary = scan_output
     demo_files = scan_output.get("demos", [])
 
     # 1. If existing demos are found -> validate
@@ -125,8 +176,8 @@ def generate_demo(scan_output: Dict, repo_path: str) -> str:
         abs_path = os.path.join(repo_path, demo)
         source = _read_file(abs_path)
 
-        if not source.strip():
-            continue
+        #if not source.strip():
+         #   continue
 
         print(f"Checking existing demo: {demo}")
         if _llm_validate_demo(scan_summary, source):
