@@ -17,13 +17,6 @@ Responsibilities:
 This gives us stable and reliable repo selection.
 """
 
-"""
-github_finder.py
-
-Uses LLM to select the best GitHub repository from those found in a paper.
-Simple, direct approach - just one LLM call.
-"""
-
 import os
 import re
 from typing import List
@@ -33,46 +26,34 @@ from dotenv import load_dotenv
 load_dotenv()  # This reads .env files in the project root
 
 def select_best_repository(github_links: List[str], paper_text: str) -> str:
-    """
-    Use LLM to pick the best repository from the paper.
-    
-    Args:
-        github_links: List of GitHub URLs from the PDF
-        paper_text: Text extracted from the paper
-        
-    Returns:
-        URL of the best repository
-    """
-    # Edge case: only one repo
+    # only one repo in the list
     if len(github_links) == 1:
         print(f"[FINDER] Only one repo: {github_links[0]}")
         return github_links[0]
     
-    # Edge case: no repos
+    # no repo in the list
     if not github_links:
         raise ValueError("No GitHub links provided")
-    
-    print(f"[FINDER] Found {len(github_links)} repos, asking LLM to choose...")
-    
+        
     # Format repos for LLM
     repos_text = "\n".join([f"{i+1}. {url}" for i, url in enumerate(github_links)])
     
-    # Truncate paper to first 2000 chars (save tokens)
+    # Truncate paper to first 2000 chars 
     paper_summary = paper_text[:2000]
     
-    # Create prompt
-    prompt = f"""You are analyzing a scientific paper to find its MAIN GitHub repository.
+    # Create prompt for the LLM
+    prompt = f"""You are analyzing a scientific paper to find its most relevant GitHub repository.
 
-PAPER EXCERPT:
+Paper Summary:
 {paper_summary}
 
-GITHUB REPOSITORIES MENTIONED:
+List of GitHub Repositories to choose from (only consider these):
 {repos_text}
 
 Which repository is the PRIMARY implementation described in this paper?
 - It should be the actual project code, not a citation or dependency
 - The name/description should match the paper's topic
-- Ignore examples, forks, or tutorial repos
+- Ignore examples, forks, or tutorial repositories
 
 Respond with ONLY the number (1, 2, 3, etc.) and brief reason.
 Format: "Repository X: [reason]"
@@ -101,11 +82,11 @@ Format: "Repository X: [reason]"
 
 
 def _call_groq(prompt: str) -> str:
-    """Call Groq API via direct HTTP request."""
+    # call Groq API through http requests
     
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise Exception("GROQ_API_KEY not set. Get free key at: https://console.groq.com/")
+        raise Exception("GROQ_API_KEY not set. Please set it in your environment variables.")
     
     response = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
@@ -114,7 +95,7 @@ def _call_groq(prompt: str) -> str:
             "Content-Type": "application/json"
         },
         json={
-            "model": "moonshotai/kimi-k2-instruct",
+            "model": "openai/gpt-oss-120b",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0,
             "max_tokens": 200
@@ -126,15 +107,3 @@ def _call_groq(prompt: str) -> str:
         raise Exception(f"Groq API error: {response.status_code}")
     
     return response.json()["choices"][0]["message"]["content"]
-
-
-# Quick test
-if __name__ == "__main__":
-    test_links = [
-        "https://github.com/RadonPy/RadonPy",
-        "https://github.com/numpy/numpy"
-    ]
-    test_paper = "This paper introduces RadonPy, a Python package for molecular dynamics..."
-    
-    result = select_best_repository(test_links, test_paper)
-    print(f"\nResult: {result}")
