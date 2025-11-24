@@ -3,51 +3,33 @@ import os
 from typing import List, Dict
 import json
 
-def _call_groq(prompt: str, max_tokens: int = 5) -> str:
-    # call groq API through http requests
-    
-    api_key = os.getenv("GROQ_API_KEY")
+def _call_openai(prompt: str) -> str:
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise Exception("OPENAI_API_KEY not set. Please set it in your environment variables.")
+        raise Exception("OPENAI_API_KEY is not set in the environment variables.")
 
-    try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "llama-3.1-8b-instant",  # ✅ CORRECT MODEL!
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.3,  # Slight creativity helps
-                "max_tokens": max_tokens
-            },
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            print(f"❌ groq API error {response.status_code}: {response.text}")
-            return ""
-        
-        data = response.json()
-        
-        # Validate response structure
-        if 'choices' in data and data['choices'] and 'message' in data['choices'][0]:
-            content = data["choices"][0]["message"].get("content", "").strip()
-            
-            if not content:
-                print("⚠️ LLM returned empty content")
-                print(f"Full response: {json.dumps(data, indent=2)}")
-            
-            return content
-        else:
-            print(f"⚠️ Unexpected response structure: {json.dumps(data, indent=2)}")
-            return ""
-            
-    except Exception as e:
-        print(f"❌ Error calling groq: {e}")
-        return ""
+    url = "https://api.openai.com/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "gpt-4o-mini",   # or any: gpt-4o, gpt-4.1, o1-mini, etc.
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0,
+        "max_tokens": 512
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        raise Exception(f"OpenAI API error {response.status_code}: {response.text}")
+
+    return response.json()["choices"][0]["message"]["content"]
 
 # ------------------------------------------------------------
 # 1. Detect languages
@@ -94,7 +76,7 @@ def detect_models(files: List[str]) -> List[str]:
                 + "\n".join(files)
                 + "\n\nReturn ONLY a JSON array of filenames."
             )
-            ai_resp = _call_groq(prompt)
+            ai_resp = _call_openai(prompt)
             # Attempt to parse JSON
             
             arr = json.loads(ai_resp)
@@ -133,7 +115,7 @@ def detect_configs(files: List[str]) -> List[str]:
             + "\n".join(files)
             + "\n\nReturn JSON array only."
         )
-        resp = _call_groq(prompt)
+        resp = _call_openai(prompt)
         
         arr = json.loads(resp)
         if isinstance(arr, list):
@@ -184,7 +166,7 @@ def detect_entrypoints(repo_path: str, files: List[str]) -> List[str]:
             + "\n".join(files)
             + "\n\nReturn JSON array only."
         )
-        ai_resp = _call_groq(prompt)
+        ai_resp = _call_openai(prompt)
         
         arr = json.loads(ai_resp)
         if isinstance(arr, list):
@@ -218,7 +200,7 @@ def detect_demo_files(files: List[str]) -> List[str]:
             + "\n".join(files)
             + "\n\nReturn JSON array only."
         )
-        ai_resp = _call_groq(prompt)
+        ai_resp = _call_openai(prompt)
         
         arr = json.loads(ai_resp)
         if isinstance(arr, list):

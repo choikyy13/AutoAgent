@@ -23,51 +23,33 @@ import json
 
 load_dotenv()
 
-def _call_groq(prompt: str, max_tokens: int = 5) -> str:
-    # call groq API through http requests
-    
-    api_key = os.getenv("GROQ_API_KEY")
+def _call_openai(prompt: str) -> str:
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise Exception("GROQ_API_KEY not set. Please set it in your environment variables.")
+        raise Exception("OPENAI_API_KEY is not set in the environment variables.")
 
-    try:
-        response = requests.post(
-            "https://api.groq.com/openai/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "llama-3.1-8b-instant",  # ✅ CORRECT MODEL!
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.3,  # Slight creativity helps
-                "max_tokens": max_tokens
-            },
-            timeout=30
-        )
-        
-        if response.status_code != 200:
-            print(f"❌ groq API error {response.status_code}: {response.text}")
-            return ""
-        
-        data = response.json()
-        
-        # Validate response structure
-        if 'choices' in data and data['choices'] and 'message' in data['choices'][0]:
-            content = data["choices"][0]["message"].get("content", "").strip()
-            
-            if not content:
-                print("⚠️ LLM returned empty content")
-                print(f"Full response: {json.dumps(data, indent=2)}")
-            
-            return content
-        else:
-            print(f"⚠️ Unexpected response structure: {json.dumps(data, indent=2)}")
-            return ""
-            
-    except Exception as e:
-        print(f"❌ Error calling groq: {e}")
-        return ""
+    url = "https://api.openai.com/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "gpt-4o-mini",   # or any: gpt-4o, gpt-4.1, o1-mini, etc.
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0,
+        "max_tokens": 512
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        raise Exception(f"OpenAI API error {response.status_code}: {response.text}")
+
+    return response.json()["choices"][0]["message"]["content"]
 
 def _read_file(path: str) -> str:
     """Read a file safely."""
@@ -108,7 +90,7 @@ def _llm_validate_demo(scan_summary: str, demo_code: str) -> bool:
     DO NOT include any punctuation, explanation, or code block markers.
     """
 
-    answer = _call_groq(prompt).upper()
+    answer = _call_openai(prompt).upper()
     return "YES" in answer
 
 
@@ -150,9 +132,10 @@ def _llm_generate_demo(scan_summary: str, repo_path: str) -> str:
     Return only the python code for the demo script, no explanations.
     REPEAT: ONLY THE CODE, NO EXTRA TEXT. 
     Don't add any intro or explanation. JUST THE RAW CODE.
+    The code should be runnable if copy pasted into a new file. So no ```python or ``` 
     """
 
-    return _call_groq(prompt)
+    return _call_openai(prompt)
 
 def generate_demo(scan_output: Dict, repo_path: str) -> str:
     """
