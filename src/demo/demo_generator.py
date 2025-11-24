@@ -23,7 +23,7 @@ import json
 
 load_dotenv()
 
-def _call_groq(prompt: str, max_tokens: int = 5) -> str:
+def _call_groq(prompt: str, max_tokens: int = 2000) -> str:
     # call groq API through http requests
     
     api_key = os.getenv("GROQ_API_KEY")
@@ -38,7 +38,7 @@ def _call_groq(prompt: str, max_tokens: int = 5) -> str:
                 "Content-Type": "application/json"
             },
             json={
-                "model": "llama-3.1-8b-instant",  # ✅ CORRECT MODEL!
+                "model": "llama-3.3-70b-versatile", 
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.3,  # Slight creativity helps
                 "max_tokens": max_tokens
@@ -163,7 +163,7 @@ def generate_demo(scan_output: Dict, repo_path: str) -> str:
     """
     print("DEMO GENERATOR START")
     scan_summary = scan_output
-    demo_files = scan_output.get("demos", [])
+    demo_files = scan_output.get("demo", [])
 
     # 1. If existing demos are found -> validate
     for demo in demo_files:

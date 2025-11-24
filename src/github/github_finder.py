@@ -74,7 +74,7 @@ Format: "Repository X: [reason]"
     return github_links[0]
 
 
-def _call_groq(prompt: str, max_tokens: int = 5) -> str:
+def _call_groq(prompt: str, max_tokens: int = 2000) -> str:
     # call groq API through http requests
     
     api_key = os.getenv("GROQ_API_KEY")
@@ -89,7 +89,7 @@ def _call_groq(prompt: str, max_tokens: int = 5) -> str:
                 "Content-Type": "application/json"
             },
             json={
-                "model": "llama-3.1-8b-instant",  # ✅ CORRECT MODEL!
+                "model": "llama-3.3-70b-versatile", 
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.3,  # Slight creativity helps
                 "max_tokens": max_tokens
