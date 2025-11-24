@@ -80,10 +80,12 @@ def _llm_validate_demo(scan_summary: str, demo_code: str) -> bool:
     Is this demo runnable and demonstrates the project?
     
     Requirements for YES:
+    - If the file is a .md file, it is not valid.
     - The code must be syntactically correct.
     - It must import necessary modules from the project.
     - Shows a working example of the main functionality.
     - Not just comments or pseudocode.
+    - It must be runnable.
 
     answer with ONLY: YES or NO.
 

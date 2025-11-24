@@ -85,5 +85,3 @@ def run_pipeline(pdf_url: str) -> dict:
         traceback.print_exc()
 
     return results
-
-run_pipeline("https://arxiv.org/pdf/2506.14965")

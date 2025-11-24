@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoAgent | AI Research Pipeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">AutoAgent <span class="badge">Beta</span></div>
+            <nav>
+                <a href="#" class="nav-link">Documentation</a>
+                <a href="#" class="nav-link">GitHub</a>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <main class="main-content">
+            <div class="hero">
+                <h1 class="title">Turn Research into <span class="gradient-text">Runnable Code</span></h1>
+                <p class="subtitle">
+                    Paste an arXiv PDF link below. We'll find the code, scan it, and generate a working demo for you instantly.
+                </p>
+
+                <div class="input-group">
+                    <input type="text" id="pdfUrl" placeholder="https://arxiv.org/pdf/2506.12494" autocomplete="off">
+                    <button id="runBtn" class="cta-button">
+                        <span class="btn-text">Start Analysis</span>
+                        <div class="spinner hidden"></div>
+                    </button>
+                </div>
+                <p class="error-msg hidden" id="errorMsg"></p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsContainer" class="results-container hidden">
+                
+                <!-- Status Cards -->
+                <div class="grid-row">
+                    <div class="card status-card">
+                        <h3>Repository Found</h3>
+                        <a id="repoLink" href="#" target="_blank" class="link-item">...</a>
+                    </div>
+                    <div class="card status-card">
+                        <h3>Pipeline Status</h3>
+                        <span id="pipelineStatus" class="status-badge">Success</span>
+                    </div>
+                </div>
+
+                <!-- Scan Summary -->
+                <div class="card full-width">
+                    <h3>Repository Scan</h3>
+                    <div id="scanSummary" class="code-preview">
+                        <!-- JSON content will go here -->
+                    </div>
+                </div>
+
+                <!-- Generated Demo -->
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3>Generated Demo Script</h3>
+                        <button class="copy-btn" id="copyBtn">Copy Code</button>
+                    </div>
+                    <pre><code id="demoCode" class="language-python"># Code will appear here...</code></pre>
+                </div>
+
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 AutoAgent. Built for speed.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
