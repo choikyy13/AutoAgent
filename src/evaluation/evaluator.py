@@ -40,8 +40,8 @@ def _call_openai(prompt: str) -> int:
     }
 
     system_prompt = (
-        "You are an expert code reviewer tasked with evaluating generated demo scripts for software projects. "
-        "Your goal is to assess the quality and intent of the generated code. "
+        "You are an code reviewer tasked with evaluating generated demo scripts for software projects. "
+        "Your goal is to assess the quality, but also the intent and potential of the generated code. "
         "However, award generous partial credit if the code's structure and logic were sound, even if execution failed due to environment-specific errors (like missing imports or file paths). "
         "You are evaluating on the content and quality of the code itself according to the paper's project summary provided. "
         "Score the demo on a scale of 0 to 5 (integer only) based on the criteria provided. "
