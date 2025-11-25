@@ -10,3 +10,4 @@ python-dotenv         # Load API keys
 GitPython           # Clone GitHub repositories
 jsonschema            # Validate JSON structures
 pdfminer.six         # Alternative PDF text extraction
+flask                 # Optional: Web interface
