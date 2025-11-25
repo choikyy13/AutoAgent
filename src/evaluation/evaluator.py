@@ -85,17 +85,16 @@ def _call_openai(prompt: str) -> int:
 
 def get_llm_qualitative_score(demo_code: str, exec_results: Dict[str, Any], project_summary: Dict[str, Any]) -> int:
     """
-    Asks an LLM (OpenAI) to score the demo code qualitatively (5 points) using a generous prompt.
+    Asks an LLM (OpenAI) to score the demo code qualitatively (5 points) using a prompt.
     """
     # If there was a syntax error, the LLM score is automatically 0.
     if exec_results.get("status") == "syntax_error":
         return 0
     
-    print("[EVALUATOR] Calling LLM (OpenAI) for qualitative scoring (5 points, Generous Mode)...")
+    print("[EVALUATOR] Calling LLM (OpenAI) for qualitative scoring (5 points)...")
 
-    # --- GENEROUS USER PROMPT ---
     prompt = f"""
-    Evaluate the following generated demo script for a project summarized below. Remember to be generous and focus on the *quality of the generated code* itself, regardless of execution failure due to external factors like missing pip dependencies.
+    Evaluate the following generated demo script for a project summarized below. Remember to focus on the quality of the generated code itself. Execution failure due to external factors like missing pip dependencies are not penalized heavily if the code structure and logic are sound. 
 
     Project Summary:
     {json.dumps(project_summary, indent=2)}
@@ -117,11 +116,11 @@ def get_llm_qualitative_score(demo_code: str, exec_results: Dict[str, Any], proj
 
     Score the demo from 0 to {MAX_LLM_QUALITATIVE_SCORE} based on these revised, generous criteria:
 
-    1. Relevance (2 points max): Did the code *attempt* to import and use the core functions of the project's library?
-        - Award 2 points if the correct modules/functions were called, even if they failed to load.
+    1. Relevance (2 points max): Did the code attempt to import and use the core functions of the project's library?
+        - Award 2 points if the correct modules/functions were called, regardless of failed to load.
         - Award 1 point if the code was syntactically Python but lacked specific project imports.
 
-    2. Clarity (2 points max): Is the code logic clear, clean, and easy to understand? Does the code structure look professional (ignoring execution errors)?
+    2. Clarity (2 points max): Is the code logic clear, clean, and easy to understand? Does the code structure look professional?
         - Award 2 points if the logic is clear.
         - Award 1 point if the code looks like a raw conversion (e.g., from a notebook) but is syntactically sound.
 
