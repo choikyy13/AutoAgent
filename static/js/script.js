@@ -65,6 +65,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Status
         pipelineStatus.textContent = 'Completed';
 
+        // 3. Evaluation Score
+        const evalScore = document.getElementById('evaluationScore');
+        if (data.evaluation && data.evaluation.evaluation_results) {
+            const score = data.evaluation.evaluation_results.total_score;
+            evalScore.textContent = `${score} / 10`;
+            
+            // Color coding
+            if (score >= 8) evalScore.style.color = '#10b981'; // Green
+            else if (score >= 5) evalScore.style.color = '#f59e0b'; // Orange
+            else evalScore.style.color = '#ef4444'; // Red
+        } else {
+            evalScore.textContent = 'N/A';
+            evalScore.style.color = '#6b7280';
+        }
+
         // 3. Scan Summary (Pretty Print JSON)
         if (data.scan_report) {
             scanSummary.textContent = JSON.stringify(data.scan_report, null, 2);

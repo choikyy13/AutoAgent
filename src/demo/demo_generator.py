@@ -175,10 +175,10 @@ def generate_demo(scan_output: Dict, repo_path: str) -> str:
 
         print(f"Checking existing demo: {demo}")
         if _llm_validate_demo(scan_summary, source):
-            print("✓ LLM approved existing demo.")
+            print("LLM approved existing demo.")
             return source  # Return raw code
 
-        print("✗ LLM rejected this demo. Trying next…")
+        print("LLM rejected this demo. Trying next…")
 
     # 2. Otherwise: generate new demo
     print("No valid demo found — generating a new one with LLM…")

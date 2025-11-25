@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
 
     <div class="app-container">
@@ -26,7 +28,8 @@
             <div class="hero">
                 <h1 class="title">Turn Research into <span class="gradient-text">Runnable Code</span></h1>
                 <p class="subtitle">
-                    Paste an arXiv PDF link below. We'll find the code, scan it, and generate a working demo for you instantly.
+                    Paste an arXiv PDF link below. We'll find the code, scan it, and generate a working demo for you
+                    instantly.
                 </p>
 
                 <div class="input-group">
@@ -41,7 +44,7 @@
 
             <!-- Results Section -->
             <div id="resultsContainer" class="results-container hidden">
-                
+
                 <!-- Status Cards -->
                 <div class="grid-row">
                     <div class="card status-card">
@@ -51,6 +54,10 @@
                     <div class="card status-card">
                         <h3>Pipeline Status</h3>
                         <span id="pipelineStatus" class="status-badge">Success</span>
+                    </div>
+                    <div class="card status-card">
+                        <h3>Demo Score</h3>
+                        <span id="evaluationScore" class="score-badge">- / 10</span>
                     </div>
                 </div>
 
@@ -81,4 +88,5 @@
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
+
 </html>

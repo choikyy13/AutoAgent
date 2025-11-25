@@ -21,7 +21,7 @@ def clone_repository(repo_url: str, base_folder: str = "ImportedProjects") -> st
     Returns: Local path to the cloned repository
     Exception: If cloning fails
     """
-    print(f"Starting clone of: {repo_url}")
+    print(f"[CLONING] Starting clone of: {repo_url}")
     
     repo_name = _extract_repo_name(repo_url)
     
@@ -31,13 +31,13 @@ def clone_repository(repo_url: str, base_folder: str = "ImportedProjects") -> st
     # Generate unique folder name
     target_folder = _generate_unique_folder(base_folder, repo_name)
     
-    print(f"Cloning into: {target_folder}")
+    print(f"[CLONING] Cloning into: {target_folder}")
     
     try:
         # Clone the repository
         Repo.clone_from(repo_url, target_folder)
         
-        print(f"Successfully cloned to {target_folder}")
+        print(f"[CLONING] Successfully cloned to {target_folder}")
         return target_folder
         
     except Exception as e:
@@ -45,7 +45,7 @@ def clone_repository(repo_url: str, base_folder: str = "ImportedProjects") -> st
         if os.path.exists(target_folder):
             shutil.rmtree(target_folder)
         
-        raise Exception(f"Failed to clone {repo_url}: {e}")
+        raise Exception(f"[CLONING] Failed to clone {repo_url}: {e}")
 
 
 def _extract_repo_name(repo_url: str) -> str:

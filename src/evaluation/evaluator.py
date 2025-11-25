@@ -75,7 +75,7 @@ def _call_openai(prompt: str) -> int:
             return 0
             
     except requests.exceptions.RequestException as e:
-        print(f"❌ Error calling OpenAI API: {e}. Defaulting qualitative score to 0.")
+        print(f"X Error calling OpenAI API: {e}. Defaulting qualitative score to 0.")
         return 0
 
 
@@ -231,37 +231,37 @@ def evaluate_demo(demo_code: str, exec_results: Dict[str, Any]) -> Dict[str, Any
     # Check 1: No Syntax Error
     if exec_results.get("status") != "syntax_error":
         score_breakdown["syntax_error"] = SCORE_SYNTAX
-        print("✓ Syntax check passed.")
+        print("O Syntax check passed.")
     else:
-        print("✗ Syntax Error detected.")
+        print("X Syntax Error detected.")
 
     # Check 2: Exit Code 0 (Success)
     if exec_results["exit_code"] == 0 and exec_results["status"] == "completed":
         score_breakdown["exit_code_0"] = SCORE_EXIT_CODE
-        print("✓ Exit Code 0.")
+        print("O Exit Code 0.")
     else:
-        print(f"✗ Non-zero exit code or failed status: {exec_results['exit_code']} ({exec_results['status']}).")
+        print(f"X Non-zero exit code or failed status: {exec_results['exit_code']} ({exec_results['status']}).")
 
     # Check 3: Finishes within reasonable time
     if exec_results["run_time"] < MAX_EXECUTION_TIME and exec_results["status"] != "timeout":
         score_breakdown["within_time"] = SCORE_RUN_TIME
-        print(f"✓ Completed within {MAX_EXECUTION_TIME}s ({exec_results['run_time']}s).")
+        print(f"O Completed within {MAX_EXECUTION_TIME}s ({exec_results['run_time']}s).")
     else:
-        print(f"✗ Execution time exceeded {MAX_EXECUTION_TIME}s or timed out.")
+        print(f"X Execution time exceeded {MAX_EXECUTION_TIME}s or timed out.")
 
     # Check 4: Prints something (positive confirmation)
     if exec_results["stdout"].strip():
         score_breakdown["prints_output"] = SCORE_STDOUT
-        print("✓ Printed output detected.")
+        print("O Printed output detected.")
     else:
-        print("✗ No output printed to stdout.")
+        print("X No output printed to stdout.")
 
     # Check 5: No error in stderr
     if not exec_results["stderr"].strip():
         score_breakdown["no_stderr"] = SCORE_STDERR
-        print("✓ No errors in stderr.")
+        print("O No errors in stderr.")
     else:
-        print("✗ Errors detected in stderr.")
+        print("X Errors detected in stderr.")
         print("   --- Stderr Output ---\n" + exec_results["stderr"].strip())
     
     total_automated_score = sum(score_breakdown.values()) - score_breakdown["llm_qualitative"]

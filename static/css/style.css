@@ -102,7 +102,7 @@ body {
     padding: 0.5rem;
     border-radius: 12px;
     border: 1px solid var(--border);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     transition: border-color 0.2s;
 }
 
@@ -157,7 +157,8 @@ input {
     opacity: 0;
     transform: translateY(20px);
     pointer-events: none;
-    display: none; /* simple hide */
+    display: none;
+    /* simple hide */
 }
 
 .grid-row {
@@ -197,6 +198,12 @@ input {
     border-radius: 99px;
     font-size: 0.9rem;
     font-weight: 600;
+}
+
+.score-badge {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
 .code-preview {
@@ -245,7 +252,7 @@ pre {
 .spinner {
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     border-top-color: #fff;
     animation: spin 1s linear infinite;
@@ -256,7 +263,9 @@ pre {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .error-msg {
