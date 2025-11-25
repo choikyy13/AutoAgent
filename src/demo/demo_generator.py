@@ -112,7 +112,7 @@ def _llm_generate_demo(scan_summary: str, repo_path: str) -> str:
         )[:1000]
 
     prompt = f"""
-    You are a code generation expert.
+    You are a code generation expert. Your primary goal is to generate a script that runs successfully.
 
     Given this project structure summary:
     {scan_summary}
@@ -124,19 +124,34 @@ def _llm_generate_demo(scan_summary: str, repo_path: str) -> str:
     {example_content}
 
     Generate a SINGLE runnable demo script that:
-    - imports required modules
-    - has no TODOs or placeholders
-    - uses detected entrypoints if available
-    - shows a minimal working example
-    - does NOT include explanations or markdown
-    - returns ONLY pure code
+    1. **Dependency Check (CRITICAL):** Includes necessary standard Python imports (os, sys, subprocess) at the top. For any external library required (e.g., 'fire', 'torch', 'scipy'), you MUST write a self-installing try/except block.
 
-    Return only the python code for the demo script, no explanations.
-    REPEAT: ONLY THE CODE, NO EXTRA TEXT. 
-    Don't add any intro or explanation. JUST THE RAW CODE.
-    The code should be runnable if copy pasted into a new file. So no ```python or ``` 
+    Example of required self-installing block:
+    import os
+    import sys
+    import subprocess
+    
+    def install_missing_dependency(package_name):
+        print(f"Installing missing dependency: {{package_name}}...")
+        # Use subprocess to ensure it runs correctly inside the container
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
+
+    try:
+        import <external_library>
+    except ImportError:
+        install_missing_dependency("<external_library>")
+        import <external_library>
+    
+    2. Imports required project modules from the cloned repository.
+    3. Has no TODOs or placeholders.
+    4. Uses detected entrypoints if available.
+    5. Shows a minimal working example that produces clean, informative output to stdout.
+
+    Return only the python code for the demo script.
+    REPEAT: ONLY THE CODE, NO EXTRA TEXT, NO CODE BLOCK MARKERS (e.g., ```python).
+
     """
-
+    
     return _call_openai(prompt)
 
 def generate_demo(scan_output: Dict, repo_path: str) -> str:
