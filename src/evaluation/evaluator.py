@@ -39,11 +39,11 @@ def _call_openai(prompt: str) -> int:
         "Content-Type": "application/json"
     }
 
-    # --- GENEROUS SYSTEM PROMPT ---
     system_prompt = (
-        "You are a supportive and encouraging code reviewer for a hackathon project. "
-        "Your goal is to assess the *potential* and *intent* of the generated code. "
-        "Award generous partial credit if the code's structure and logic were sound, even if execution failed due to environment-specific errors (like missing imports or file paths). "
+        "You are an expert code reviewer tasked with evaluating generated demo scripts for software projects. "
+        "Your goal is to assess the quality and intent of the generated code. "
+        "However, award generous partial credit if the code's structure and logic were sound, even if execution failed due to environment-specific errors (like missing imports or file paths). "
+        "You are evaluating on the content and quality of the code itself according to the paper's project summary provided. "
         "Score the demo on a scale of 0 to 5 (integer only) based on the criteria provided. "
         "Output ONLY a single integer score from 0 to 5. DO NOT include any extra text or explanation."
     )
